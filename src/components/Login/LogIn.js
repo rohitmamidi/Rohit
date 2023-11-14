@@ -1,4 +1,5 @@
 import React from "react";
+import GitHubLogin from "react-github-login";
 import {
   ToastsContainer,
   ToastsStore,
@@ -8,8 +9,22 @@ import { Redirect, Link } from "react-router-dom";
 import base64 from "react-native-base64";
 import { Formik } from "formik";
 import { validateName, validatePassword } from "../../validations/validations";
-
+const onSuccess = (response) => {console.log(response);localStorage.setItem("accessToken",response.code)};
+const onFailure = response => console.error(response);
+const vyshu = () => {
+  fetch("https://api.github.com/user",{
+    method:"GET",
+    headers:{
+      "Authorization": "Bearer " + localStorage.getItem("accessToken")
+    }
+  }).then((response) => {
+    return response.json();
+  }).then((response) => {
+    console.log(response);
+  })
+}
 class LogIn extends React.Component {
+  
   constructor(props) {
     super(props);
     this.state = {
@@ -64,7 +79,7 @@ class LogIn extends React.Component {
             <div className="container mt-2 mb-4 divMiddle">
               <div className="col-sm-8 ml-auto mr-auto">
                 <h1 className="display-5 text-center pb-5">
-                  <u>React Signup, Signin, Logout features</u>
+                  <u>GitHub Analytics DashBoard</u>
                 </h1>
                 <div
                   className="tab-content col-sm-6 ml-auto mr-auto"
@@ -84,7 +99,11 @@ class LogIn extends React.Component {
                           alt=""
                         />
                       </div>
-                      <form onSubmit={props.handleSubmit}>
+                      <GitHubLogin clientId = "8b74c25d0be8b7d3363c" redirectUri = "http://localhost:3000" scope = "User"
+                        onSuccess={onSuccess}
+                        onFailure={onFailure}></GitHubLogin>
+                        <button onClick={vyshu}>User Data</button>
+                      {/* <form onSubmit={props.handleSubmit}>
                         <div className="form-group">
                           <label className="font-weight-bold">
                             Username <span className="text-danger">*</span>
@@ -139,7 +158,7 @@ class LogIn extends React.Component {
                             className="btn btn-block btn-primary"
                           />
                         </div>
-                      </form>
+                      </form> */}
                       {localStorage.getItem(props.values.userName) &&
                       JSON.parse(localStorage.getItem(props.values.userName))
                         .isUserLoggedIn ? (
